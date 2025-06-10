@@ -5,9 +5,32 @@ using UnityEngine;
 
 using NativeWebSocket;
 using System.Threading.Tasks;
+
+public class MotorsForces
+{
+    public float m1;
+    public float m2;
+    public float m3;
+    public float m4;
+
+}
 public class websocket_client : MonoBehaviour
 {
     private imu imuComponent;
+
+    private Rigidbody droneRigidbody;
+
+    public engine motor1;
+    public engine motor2;
+    public engine motor3;
+    public engine motor4;
+
+    private float m1 = 0f;
+    private float m2 = 0f;
+    private float m3 = 0f;
+    private float m4 = 0f;
+
+
     public WebSocket ws;
     public string serverUrl = "ws://localhost:3030"; // URL del servidor WebSocket
 
@@ -15,6 +38,7 @@ public class websocket_client : MonoBehaviour
     async void Start()
     {
         imuComponent = FindFirstObjectByType<imu>();
+        droneRigidbody = imuComponent.GetComponent<Rigidbody>();
         await Connect();
     }
 
@@ -25,6 +49,12 @@ public class websocket_client : MonoBehaviour
         ws.DispatchMessageQueue();
 #endif
         ws.SendText(JsonUtility.ToJson(imuComponent));
+
+        droneRigidbody.AddForceAtPosition(m1 * Time.fixedDeltaTime * motor1.transform.up, motor1.transform.position, ForceMode.Force);
+        droneRigidbody.AddForceAtPosition(m2 * Time.fixedDeltaTime * motor2.transform.up, motor2.transform.position, ForceMode.Force);
+        droneRigidbody.AddForceAtPosition(m3 * Time.fixedDeltaTime * motor3.transform.up, motor3.transform.position, ForceMode.Force);
+        droneRigidbody.AddForceAtPosition(m4 * Time.fixedDeltaTime * motor4.transform.up, motor4.transform.position, ForceMode.Force);
+
     }
 
     public async Task Connect()
@@ -50,13 +80,23 @@ public class websocket_client : MonoBehaviour
         {
             string message = System.Text.Encoding.UTF8.GetString(bytes);
             Debug.Log("Instrucciones Recibidas: " + message);
+
+            MotorsForces forces = JsonUtility.FromJson<MotorsForces>(message);
+
+            // Aplicar fuerzas a los motores.
+            m1 = forces.m1;
+            m2 = forces.m2;
+            m3 = forces.m3;
+            m4 = forces.m4;
         };
 
         await ws.Connect();
 
+
+
     }
-    
-      public async void WsSendMessage(string message)
+
+    public async void WsSendMessage(string message)
     {
         if (ws.State == WebSocketState.Open)
         {
