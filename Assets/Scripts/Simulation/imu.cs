@@ -32,9 +32,20 @@ public class imu : MonoBehaviour
         float dt = Time.fixedDeltaTime;
 
         // Acelerómetro simulado.
-        Vector3 accel = (rb.linearVelocity - lastVelocity) / dt;
+        Vector3 accel = (rb.linearVelocity - lastVelocity) / dt - Physics.gravity;
         acceleration = accel + Random.insideUnitSphere * accelNoise;
+
+        Debug.Log("Aceleración: " + acceleration.y + " |||| Aceleración invertida: " + -acceleration.y);
+
+        Vector3 imuAccel = new(
+            acceleration.z,
+            -acceleration.x,
+            acceleration.y
+        );
+        acceleration = imuAccel;
+
         lastVelocity = rb.linearVelocity;
+
 
         // Giroscopio simulado: devuelve velocidad angular (rad/s) con ruido, como Vector3.
         gyro = rb.angularVelocity + Random.insideUnitSphere * gyroNoise;
