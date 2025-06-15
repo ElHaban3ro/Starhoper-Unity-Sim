@@ -34,6 +34,19 @@ public class websocket_client : MonoBehaviour
     public WebSocket ws;
     public string serverUrl = "ws://localhost:3030"; // URL del servidor WebSocket
 
+
+    void OnDrawGizmos() {
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(motor1.transform.position, 0.15f);
+        Gizmos.color = Color.green;
+        Gizmos.DrawSphere(motor2.transform.position, 0.15f);
+        Gizmos.color = Color.blue;
+        Gizmos.DrawSphere(motor3.transform.position, 0.15f);
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawSphere(motor4.transform.position, 0.15f);
+    }
+
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     async void Start()
     {

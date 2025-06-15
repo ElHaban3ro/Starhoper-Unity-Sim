@@ -10,6 +10,7 @@ public class imu : MonoBehaviour
     public float accelNoise = 0.2f;
     public float gyroNoise = 0.1f;
     public float magnetNoise = 0.05f;
+    public Vector3 eulerAngles = Vector3.zero; // Euler angles for the IMU orientation
 
 
     // IMU Data
@@ -29,35 +30,12 @@ public class imu : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        float dt = Time.fixedDeltaTime;
-
-        // =================================
-        // ACELERÓMETRO
-        // =================================
-        Vector3 accel = (rb.linearVelocity - lastVelocity) / dt - Physics.gravity;
-        acceleration = accel + Random.insideUnitSphere * accelNoise;
-
-        Vector3 imuAccel = new(
-            acceleration.z,
-            -acceleration.x,
-            acceleration.y
-        );
-        acceleration = imuAccel;
-        lastVelocity = rb.linearVelocity;
         
-
-        // =================================
-        // GIRÓSCOPIO
-        // =================================
-        Vector3 angularVelocity = rb.angularVelocity; // en rad/s
-
-        Vector3 imuGyro = new Vector3(
-            -angularVelocity.z,    // X ← Z (roll)
-            -angularVelocity.x,   // Y ← -X (pitch)
-            -angularVelocity.y    // Z ← -Y (yaw)
+        eulerAngles = new Vector3(
+            NormalizeAngle(transform.eulerAngles.z),
+            NormalizeAngle(transform.eulerAngles.x),
+            NormalizeAngle(transform.eulerAngles.y)
         );
-        gyro = imuGyro;
-
 
         // =================================
         // MAGNETÓMETRO
@@ -73,8 +51,16 @@ public class imu : MonoBehaviour
         );
         magnet = imuMagnet;
 
-        Debug.DrawRay(transform.position, transform.TransformDirection(magneticNorth) * 2, Color.cyan);
-        
+        Debug.DrawRay(transform.position, transform.forward * 2, Color.cyan);
+
+    }
+
+    float NormalizeAngle(float angle)
+    {
+        angle %= 360f;
+        if (angle > 180f)
+            angle -= 360f;
+        return angle;
     }
 
 }
